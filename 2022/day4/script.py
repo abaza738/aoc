@@ -18,7 +18,7 @@ class Assignment:
         return (self.start <= another.start and self.end >= another.end) or (another.start <= self.start and another.end >= self.end)
 
     def partially_overlaps(self, another: 'Assignment'):
-        """(FAULTY) - Partially overlapping assignments
+        """Partially overlapping assignments
 
         Args:
             another (Assignment): another one to compare to
@@ -26,7 +26,11 @@ class Assignment:
         Returns:
             Boolean: if they overlap partially (boundaries-inclusive)
         """
-        return (self.start <= another.start and self.end >= another.start) or (self.start <= another.end and self.end >= another.end)
+        return self.fully_overlaps(another) or (Assignment._is_between(self.start, self.end, another.start)) or (Assignment._is_between(another.start, another.end, self.start))
+
+    @staticmethod
+    def _is_between(min: int, max: int, value: int):
+        return value >= min and value <= max
 
 count_full_overlap = 0
 count_partial_overlap = 0
@@ -49,4 +53,4 @@ for line in lines:
     if first.partially_overlaps(second):
         count_partial_overlap += 1
 
-print(count_full_overlap, count_partial_overlap)
+print(f'{count_partial_overlap} assignments overlap, among them {count_full_overlap} are fully overlapping.')
