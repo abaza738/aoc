@@ -1,3 +1,4 @@
+
 with open('2022/day8/input.txt', 'r') as r:
     lines = r.readlines()
 
@@ -10,34 +11,54 @@ for row_index in range(len(lines)):
     for col_index in range(len(col)):
         data[row_index].append(int(lines[row_index][col_index]))
 
-visible_count = len(data)*4 - 4 # Initial data -> trees on the edges are already visible
+visible_count = 0
 
-def is_visible(data, row, col):
+def is_visible_and_count(data: list[list[int]], row: int, col: int) -> tuple[bool, int]:
     tree = data[row][col]
 
-    def is_visible_vertical(start, end):
-        for index in range(start, end):
+    def is_visible_vertical(start, end, step=1):
+        count = 0
+        for index in range(start, end, step):
+            count += 1
             if data[index][col] >= tree:
-                return False
-        return True
+                return (False, count)
+        return (True, count)
 
-    def is_visible_horizontal(start, end):
-        for index in range(start, end):
+    def is_visible_horizontal(start, end, step=1):
+        count = 0
+        for index in range(start, end, step):
+            count += 1
             if data[row][index] >= tree:
-                return False
-        return True
+                return (False, count)
+        return (True, count)
+
+    top = is_visible_vertical(row-1, -1, -1)
+    bottom = is_visible_vertical(row+1, len(data))
+    left = is_visible_horizontal(col-1, -1, -1)
+    right = is_visible_horizontal(col+1, len(data))
+
     
     return (
-        is_visible_vertical(0, row) or
-        is_visible_vertical(row+1, len(data)) or
-        is_visible_horizontal(0, col) or
-        is_visible_horizontal(col+1, len(data))
+        top[0] or bottom[0] or left[0] or right[0],
+        top[1] * bottom[1] * left[1] * right[1]
     )
 
-# Only look at the inner trees, skip edges
-for i in range(1, len(data)-1):
-    for j in range(1, len(data)-1):
-        if is_visible(data, i, j):
-            visible_count += 1
 
-print(visible_count)
+def main():
+    global visible_count
+    max_score = 0
+
+    for i in range(0, len(data)):
+        for j in range(0, len(data)):
+            result = is_visible_and_count(data, i, j)
+
+            if result[1] > max_score:
+                max_score = result[1]
+
+            if result[0]:
+                visible_count += 1
+    print(visible_count, max_score)
+
+
+if __name__ == "__main__":
+    main()
